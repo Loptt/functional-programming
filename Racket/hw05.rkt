@@ -16,24 +16,58 @@
 	)
 )
 
-(myReverse '(1 2 3 4 5))
+(define (meanHelper x n a)
+	(if (null? x)
+		(/ a n)
+		(meanHelper (cdr x) (+ n 1) (+ a (car x)))
+	)
+)
 
 (define (myMean x)
-	(display "Not yet implemented.")	
+	(if (null? x)
+		"Error"
+		(meanHelper x 0 0)
+	)
 )
 
 (define (fibonacci n)
-	(display "Not yet implemented.")		
+	(if (= n 0)
+		0
+		(if (= n 1)
+			1
+			(+ (fibonacci (- n 1)) (fibonacci (- n 2)))
+		)
+	)		
 )
 
+(fibonacci 2)	
+
 (define (sum x)
-	(display "Not yet implemented.")		
+	(if (null? x)
+		0
+		(if (list? (car x))
+			(sum (cdr x))
+			(+ (car x) (sum (cdr x)))
+		)			
+	)
 )
 
 (define (nestedSum x)
-	(display "Not yet implemented.")		
+	(if (null? x)
+		0
+		(if (list? (car x))
+			(+ (nestedSum (car x)) (nestedSum (cdr x)))
+			(+ (car x) (nestedSum (cdr x)))
+		)			
+	)		
 )
 
 (define (removeNestedLists x)
-	(display "Not yet implemented.")		
+	(if (null? x)
+		'()
+		(if (list? (car x))
+			(append (removeNestedLists (car x)) (removeNestedLists (cdr x)))
+			(cons (car x) (removeNestedLists (cdr x)))
+		)
+	)		
 )
