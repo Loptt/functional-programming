@@ -40,8 +40,6 @@
 	)		
 )
 
-(fibonacci 2)	
-
 (define (sum x)
 	(if (null? x)
 		0
