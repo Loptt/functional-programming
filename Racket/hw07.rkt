@@ -29,24 +29,66 @@
 	(indexAux x 0 lst)
 )
 
-(index 8 '(2 3 4 6))
-
 (define (allDifferent? lst)
-    
+    (if (null? lst)
+        #t
+        (and (< (index (car lst) (cdr lst)) 0) (allDifferent? (cdr lst)))
+    )
 )
 
 (define (set x)
-	(display "Not yet implemented.")
+    (if (null? x)
+        '()
+        (if (and (number? (car x)) (not (member (car x) (cdr x))))
+            (cons (car x) (set (cdr x)))
+            (set (cdr x))
+        )
+    )
 )
 
 (define (union x y)
-	(display "Not yet implemented.")
+    (set (append x y))
+)
+
+(define (getRepeated x)
+    (if (null? x)
+        '()
+        (if (member (car x) (cdr x))
+            (cons (car x) (getRepeated (cdr x)))
+            (getRepeated (cdr x))
+        )
+    )
 )
 
 (define (intersect x y)
-  	(display "Not yet implemented.")
+    (getRepeated (append (set x) (set y)))
+)
+
+(define (getFromRow y r)
+    (if (= y 1)
+        (car r)
+        (getFromRow (- y 1) (cdr r))
+    )
+)
+
+(define (getElement x y m)
+    (if (= x 1)
+        (getFromRow y (car m))
+        (getElement (- x 1) y (cdr m))
+    )
 )
 
 (define (det3x3 m)
-	(display "Not yet implemented.") 
+    (-
+        (+ 
+            (* (getElement 1 1 m) (getElement 2 2 m) (getElement 3 3 m))
+            (* (getElement 1 2 m) (getElement 2 3 m) (getElement 3 1 m))
+            (* (getElement 1 3 m) (getElement 2 1 m) (getElement 3 2 m))
+        )
+        (+
+            (* (getElement 3 1 m) (getElement 2 2 m) (getElement 1 3 m))
+            (* (getElement 3 2 m) (getElement 2 3 m) (getElement 1 1 m))
+            (* (getElement 3 3 m) (getElement 2 1 m) (getElement 1 2 m))
+        )
+    )
 )
