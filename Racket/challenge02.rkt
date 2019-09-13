@@ -48,18 +48,31 @@
                 1
                 0
             )
-        ) x y)
+        ) 
+    x y)
 )
 
 (define (listToNumAux x n)
     (if (null? x)
         0
-        (+ (* (car x) n) (listToNumAux (cdr x) (/ n 10)))
+        (+ (* (car x) n) (listToNumAux (cdr x) (* n 10)))
     )
 )
 
 (define (listToNum x)
-    (listToNumAux x (expt 10 (length x)))
+    (listToNumAux (reverse x) 1)
 )
 
-(listToNum '(3 7 2 8 2 5))
+(define (addRow x)
+    (if (null? x)
+        0
+        (+ (car x) (addRow (cdr x)))
+    )
+)
+
+(define (addMatrix x)
+    (if (null? x)
+        0
+        (+ (addRow (car x)) (addMatrix (cdr x)))
+    )
+)
