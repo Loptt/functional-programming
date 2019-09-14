@@ -64,11 +64,11 @@
 ;; (insertElement 10 '(8 (5 (2 () ()) (7 () ())) (9 () (15 (11 () ()) ()))))
 
 ;; path? helper
-(define (processSoruces s d g)
+(define (processSources s d g)
     (cond
         ((null? s) #f)
         ((equal? (car s) d) #t)
-        (else (or (pathAux (car s) d g) (processSoruces (cdr s) d g)))
+        (else (or (pathAux (car s) d g) (processSources (cdr s) d g)))
     )
 )
 
@@ -76,7 +76,7 @@
 (define (pathAux s d g)
     (if (null? (filter (lambda (x) (equal? (car x) s)) g))
         #f
-        (processSoruces (cdar (filter (lambda (x) (equal? (car x) s)) g)) d (filter (lambda (x) (not (equal? (car x) s))) g))
+        (processSources (cdar (filter (lambda (x) (equal? (car x) s)) g)) d (filter (lambda (x) (not (equal? (car x) s))) g))
     )
 )
 
