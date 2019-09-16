@@ -87,8 +87,8 @@
     (if (null? g)
         #f
         (or 
-            (pathAux m n g)
-            (pathAux n m g)
+            (dfs m n g)
+            (dfs n m g)
         )
     )
 )
