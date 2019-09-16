@@ -64,16 +64,16 @@
 ;; (insertElement 10 '(8 (5 (2 () ()) (7 () ())) (9 () (15 (11 () ()) ()))))
 
 ;; path? helper
-(define (processSources s d g)
+(define (processSources sources-lst d g)
     (cond
-        ((null? s) #f)
-        ((equal? (car s) d) #t)
-        (else (or (pathAux (car s) d g) (processSources (cdr s) d g)))
+        ((null? sources-lst) #f)
+        ((equal? (car sources-lst) d) #t)
+        (else (or (dfs (car sources-lst) d g) (processSources (cdr sources-lst) d g)))
     )
 )
 
 ;; path? helper 
-(define (pathAux s d g)
+(define (dfs s d g)
     (if (null? (filter (lambda (x) (equal? (car x) s)) g))
         #f
         (processSources (cdar (filter (lambda (x) (equal? (car x) s)) g)) d (filter (lambda (x) (not (equal? (car x) s))) g))
