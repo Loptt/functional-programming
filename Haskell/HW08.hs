@@ -38,9 +38,11 @@ multiples (x : xs) n = if x `mod` n == 0
 toBinaryString :: Int -> [Char]
 toBinaryString 0 = "0"
 toBinaryString 1 = "1"
-toBinaryString n = (toBinaryString n `mod` 2) ++ toBinaryString n / 2
+toBinaryString n = toBinaryString (n `div` 2) ++ (toBinaryString (n `mod` 2))
 
 
 -- Insertion sort
 insertionSort :: [Int] -> [Int]
-insertionSort _ = error "Not yet implemented."
+insertionSort [] = []
+insertionSort [x] = [x]
+insertionSort 
