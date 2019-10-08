@@ -12,26 +12,26 @@ module HW08 where
 -- Inverts a list
 invert :: [t] -> [t]
 invert [] = []
-invert (x : rest) = invert rest ++ [x]
+invert (x:rest) = invert rest ++ [x]
 
 -- Evaluation of polynomials
 evaluate :: [Double] -> Double -> Double
 evaluate [] _ = 0.0
-evaluate (x : xs) n = x * (n ^ length xs) + evaluate xs n
+evaluate (x:xs) n = x * (n ^ length xs) + evaluate xs n
 
 -- Cleans a string. Given a string, return recursively a "cleaned" string where adjacent chars that are the same have been reduced to a single char. So "yyzzza" yields "yza".
 cleanString :: [Char] -> [Char]
 cleanString [] = ""
 cleanString [x] = [x]
-cleanString (x : y : xs) = if x == y
-    then cleanString (y : xs)
-    else x : (cleanString (y : xs))
+cleanString (x:y:xs) = if x == y
+    then cleanString (y:xs)
+    else x:(cleanString (y:xs))
 
 -- Multiples
 multiples :: [Int] -> Int -> [Int]
 multiples [] _ = []
-multiples (x : xs) n = if x `mod` n == 0
-    then x : multiples xs n
+multiples (x:xs) n = if x `mod` n == 0
+    then x:multiples xs n
     else multiples xs n
 
 -- Returns a string with the binary representation of an integer value
@@ -40,9 +40,14 @@ toBinaryString 0 = "0"
 toBinaryString 1 = "1"
 toBinaryString n = toBinaryString (n `div` 2) ++ (toBinaryString (n `mod` 2))
 
+insert :: Int -> [Int] -> [Int]
+insert x [] = [x]
+insert x (y : rest) = if x < y
+    then x:y:rest
+    else y:(insert x rest)
 
 -- Insertion sort
 insertionSort :: [Int] -> [Int]
 insertionSort [] = []
 insertionSort [x] = [x]
-insertionSort 
+insertionSort (x:y) = insert x (insertionSort y)
