@@ -48,8 +48,6 @@
     )
 )
 
-(set '(1 2 2 2 2 3 2))
-
 (define (union x y)
     (set (append x y))
 )
