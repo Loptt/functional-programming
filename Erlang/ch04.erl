@@ -3,6 +3,8 @@
 -import(lists, [sum/1]).
 -export[respond/0, doMath/3, startCalculator/1, add/1, subtract/1, multiply/1, divide/1, getResult/0, calculate/1, tic/0, tac/0, startClock/0, stopClock/0, sumConcurrent/1, sumAux/0].
 
+% Carlos Estrada A01039919
+
 respond() ->
     receive
         X when is_number(X) ->
