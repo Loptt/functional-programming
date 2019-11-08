@@ -1,5 +1,8 @@
 -module(hw12).
--export([startAppend/0, listenList/1, factorial/1, a/0, b/0, fof/1, startFoF/2, run/0, marco/2, polo/2]).
+-export([startAppend/0, listenList/1, factorial/1, a/0, b/0, fof/1,
+        startFoF/2, run/0, marco/2, polo/2, startBank/0, stopBank/0,
+        createAccount/2, bank/1, seeAcounts/0, requestBalance/1, deposit/2,
+        withdraw/2]).
 
 listenList(X) ->
     receive 
@@ -108,11 +111,89 @@ run() ->
     io:format("Polo is hidden (we dont know where he is)...~n"),
     poloid ! {MarcoX, MarcoY}.
 
-bank(X) -> 
-    receive
-        
+getAmount([], _) -> 0;
+getAmount([{N1, X}|Xs], N2) ->
+    if 
+        N1 == N2 ->
+            X;
+        true ->
+            getAmount(Xs, N2)
     end.
 
+depositBank([], _, _) -> [];
+depositBank([{N1, A}|Xs], N2, D) ->
+    if
+        N1 == N2 ->
+            [{N1, A+D}|Xs];
+        true ->
+            [{N1, A}|depositBank(Xs, N2, D)]
+    end.
+
+withdrawBank([], _, _) -> [];
+withdrawBank([{N1, A}|Xs], N2, D) ->
+    if
+        N1 == N2 ->
+            [{N1, A-D}|Xs];
+        true ->
+            [{N1, A}|withdrawBank(Xs, N2, D)]
+    end.
+
+bank(X) -> 
+    receive
+        {O, N, A} when O == create ->
+            bank([{N, A}|X]);
+        {O, Pid} when O == see ->
+            Pid ! X,
+            bank(X);
+        {O, Pid, A} when O == request ->
+            Pid ! getAmount(X, A),
+            bank(X);
+        {O, N, A} when O == deposit ->
+            bank(depositBank(X, N, A));
+        {O, N, A} when O == withdraw ->
+            bank(withdrawBank(X, N, A))          
+    end.
+
+createAccount(Number, Amount) ->
+    if
+        Amount < 500 ->
+            io:format("Initial amount must be at least 500~n");
+        true ->
+            bankid ! {create, Number, Amount},
+            io:format("Account created with number: ~p and initial amount: ~p~n", [Number, Amount])
+    end. 
+
+seeAcounts() ->
+    bankid ! {see, self()},
+    receive
+        X ->
+            io:format("Current Accounts: ~p~n", [X])
+    end.
+
+requestBalance(Number) ->
+    bankid ! {request, self(), Number},
+    receive
+        X ->
+            io:format("Amount on account ~p: ~p~n", [Number, X])
+    end.
+
+deposit(Number, Amount) ->
+    if
+        Amount < 20 ->
+            io:format("Deposit amount must be at least 20~n");
+        true ->
+            bankid ! {deposit, Number, Amount},
+            io:format("Deposited ~p into account ~p~n", [Amount, Number])
+    end. 
+
+withdraw(Number, Amount) ->
+    if
+        Amount < 1 ->
+            io:format("Withdraw amount must be at least 1~n");
+        true ->
+            bankid ! {withdraw, Number, Amount},
+            io:format("Taken ~p from account ~p~n", [Amount, Number])
+    end. 
 
 startBank() ->
     register(bankid, spawn(hw12, bank, [[]])).
