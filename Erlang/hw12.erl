@@ -4,6 +4,10 @@
         createAccount/2, bank/1, seeAcounts/0, requestBalance/1, deposit/2,
         withdraw/2]).
 
+%==========================
+% Carlos Estrada A01039919
+%==========================
+
 listenList(X) ->
     receive 
         N when (is_number(N) and (N > 0)) ->
@@ -53,18 +57,25 @@ factorial(X) ->
 fof(Color) ->
     receive
         {Pid, M} when is_list(M) ->
-            Pid ! {self(), Color},
-            receive
-                {Pid, X} when is_atom(X) ->
-                    Pid ! {self(), X == Color},
-                    fof(Color);
-                X ->
-                    Equal =  hd(tl(tuple_to_list(X))),
-                    if
-                        Equal ->
-                            io:format("Received a message from a friend process, ~p: ~p~n", [Pid, M]);
-                        true ->
-                            io:format("Process ~p is not my friend. I will ignore its message~n", [Pid])
+            ThisPid = self(),
+            OtherPid = whereis(Pid),
+            if
+                ThisPid == OtherPid ->
+                    io:format("Received a message from a friend process, ~p: ~p~n", [Pid, M]);
+                true ->
+                    Pid ! {self(), Color},
+                    receive
+                        {Pid, X} when is_atom(X) ->
+                            Pid ! {self(), X == Color},
+                            fof(Color);
+                        X ->
+                            Equal =  hd(tl(tuple_to_list(X))),
+                            if
+                                Equal ->
+                                    io:format("Received a message from a friend process, ~p: ~p~n", [Pid, M]);
+                                true ->
+                                    io:format("Process ~p is not my friend. I will ignore its message~n", [Pid])
+                            end
                     end
             end,
             fof(Color);
