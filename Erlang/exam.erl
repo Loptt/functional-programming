@@ -3,10 +3,12 @@
 
 % Do not forget to include the full name and student ID of the team members
 %=======================================
-% Name:
-% Student ID:
-% Name:
-% Student ID:
+% Name: Carlos Estrada
+% Student ID: A01039919
+% Name: Erick Gonzalez
+% Student ID: A01039859
+% Name: Moises Fernandez
+% Student ID: A01197049
 %=======================================
 
 % Testing
@@ -37,7 +39,22 @@
 % Returns {12, 20}, which means that, the cumulative weight of the items
 % in the knapsack is 12 units, and its profit is 20 units.
 % ============================================
-evaluate(Solution, Instance) -> io:format("Not yet implemented.\n").
+
+evaluateAux([], [], _, CurrWeight, CurrProfit) -> {CurrWeight, CurrProfit};
+evaluateAux([S|Solution], [{Weight, Profit}|Instance], Capacity, CurrWeight, CurrProfit) ->
+	if 
+		S ->
+			if 
+				CurrWeight + Weight =< Capacity ->
+					evaluateAux(Solution, Instance, Capacity, CurrWeight+Weight, CurrProfit+Profit);
+				true ->
+					evaluateAux(Solution, Instance, Capacity, CurrWeight, CurrProfit)
+			end;
+		true->
+			evaluateAux(Solution, Instance, Capacity, CurrWeight, CurrProfit)
+	end.
+
+evaluate(Solution, {Capacity, Instance}) -> evaluateAux(Solution, Instance, Capacity, 0, 0).
 
 % Generation of random solutions
 %
@@ -61,8 +78,15 @@ rndSolution(N) -> if
 % Returns a new solution which is slightly different from the one given
 % as argument (the elements are changed with a probability of 0.1).
 % ============================================
-mutate(Solution, Probability) -> io:format("Not yet implemented.\n").
-
+mutate([], _) -> [];
+mutate([Value|Solution], Probability) ->
+	Mut = rand:uniform(),
+	if 
+		Mut < Probability ->
+			[not Value|mutate(Solution, Probability)];
+		true ->
+			[Value|mutate(Solution, Probability)]
+	end.
 % Test instances
 %
 % getInstance/1 returns an instance of the knapsack problem. 
@@ -96,7 +120,22 @@ getInstance(ks10000) -> {1000000, [{120553, 122416}, {179530, 171513}, {76916, 7
 % the actual solution found and Weight and Profit indicate the total weight 
 % and profit packed within the knapsack, respectively.
 % ============================================
-solve(Instance, Trials) -> io:format("Not yet implemented.\n").
+
+solveAux(_, BestSolution, Instance, 0) -> list_to_tuple([BestSolution] ++ tuple_to_list(evaluate(BestSolution, Instance)));
+solveAux(Solution, BestSolution, Instance, Trials) ->
+	BestProfit = hd(tl(tuple_to_list(evaluate(BestSolution, Instance)))),
+	CurrProfit = hd(tl(tuple_to_list(evaluate(Solution, Instance)))),
+
+	if
+		CurrProfit > BestProfit ->
+			solveAux(mutate(Solution, 0.1), Solution, Instance, Trials-1);
+		true ->
+			solveAux(mutate(Solution, 0.1), BestSolution, Instance, Trials-1)
+	end.
+
+solve({Capacity, Instance}, Trials) -> 
+	RandomSolution = rndSolution(length(Instance)),
+	solveAux(RandomSolution, RandomSolution, {Capacity, Instance}, Trials).
 
 % Concurrent solver 
 %
