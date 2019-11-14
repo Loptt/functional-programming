@@ -133,9 +133,9 @@ solveAux(Solution, BestSolution, Instance, Trials) ->
 			solveAux(mutate(Solution, 0.1), BestSolution, Instance, Trials-1)
 	end.
 
-solve({Capacity, Instance}, Trials) -> 
-	RandomSolution = rndSolution(length(Instance)),
-	solveAux(RandomSolution, RandomSolution, {Capacity, Instance}, Trials).
+solve({Capacity, Items}, Trials) -> 
+	RandomSolution = rndSolution(length(Items)),
+	solveAux(RandomSolution, RandomSolution, {Capacity, Items}, Trials).
 
 % Concurrent solver 
 %
