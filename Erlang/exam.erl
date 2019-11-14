@@ -1,5 +1,5 @@
 -module(exam).
--export([evaluate/2, rndSolution/1, mutate/2, getInstance/1, solve/2, solveConcurrent/3, runTime/3]).
+-export([evaluate/2, rndSolution/1, mutate/2, getInstance/1, solve/2,receiver/3, solveConcurrent/3,solveConcurrentAux/2, runTime/3,solveConcurrentSpawn/3]).
 
 % Do not forget to include the full name and student ID of the team members
 %=======================================
@@ -133,9 +133,9 @@ solveAux(Solution, BestSolution, Instance, Trials) ->
 			solveAux(mutate(Solution, 0.1), BestSolution, Instance, Trials-1)
 	end.
 
-solve({Capacity, Items}, Trials) -> 
-	RandomSolution = rndSolution(length(Items)),
-	solveAux(RandomSolution, RandomSolution, {Capacity, Items}, Trials).
+solve({Capacity, Instance}, Trials) -> 
+	RandomSolution = rndSolution(length(Instance)),
+	solveAux(RandomSolution, RandomSolution, {Capacity, Instance}, Trials).
 
 % Concurrent solver 
 %
@@ -150,8 +150,31 @@ solve({Capacity, Items}, Trials) ->
 % and Weight and Profit indicate the total weight and profit packed within the
 % knapsack, respectively.
 % ============================================
-solveConcurrent(Instance, Trials, Processes) -> io:format("Not yet implemented.\n").
+solveConcurrentAux(Instance, Trials) -> receiverid ! solve(Instance, Trials).
 
+receiver(ParentID, 0, {BestSolution, BestWeight, BestProfit})-> ParentID ! {BestSolution, BestWeight, BestProfit};
+receiver(ParentID, N, {BestSolution, BestWeight, BestProfit})->
+	receive
+		{Solution, Weight, Profit}->
+			if Profit > BestProfit -> receiver(ParentID, N-1, {Solution, Weight, Profit});
+				true-> receiver(ParentID, N-1,{BestSolution, BestWeight, BestProfit})
+			end
+	end.
+
+solveConcurrentSpawn(_,_,0)-> ok;
+solveConcurrentSpawn(N,Instance,Processes)->
+	spawn(exam,solveConcurrentAux,[N,Instance]),
+	solveConcurrentSpawn(N,Instance,Processes-1).
+
+solveConcurrent(Instance, Trials, Processes) ->
+	register(receiverid,spawn(exam, receiver,[self(),Processes,{[],0,0}])),
+	solveConcurrentSpawn(Trials div Processes,Instance, Processes),
+	receive
+		N -> N
+	end.
+
+
+%exam:solveConcurrent(exam:getInstance(ks45),100,4).
 % Runtime analysis
 %
 % runTime/3 evaluates the running time of the solvers on specific instances.
@@ -163,8 +186,8 @@ solveConcurrent(Instance, Trials, Processes) -> io:format("Not yet implemented.\
 % by evaluating 1 million solutions.
 % ============================================
 runTime(I, N, sequential) -> 
-	{T, {_, _, _}} = timer:tc(knapsack, solve, [I, N]),
+	{T, {_, _, _}} = timer:tc(exam, solve, [I, N]),
 	T / 1000000;
 runTime(I, N, concurrent) -> 
-	{T, {_, _, _}} = timer:tc(knapsack, solveConcurrent, [I, N, 4]),
+	{T, {_, _, _}} = timer:tc(exam, solveConcurrent, [I, N, 4]),
 	T / 1000000.	
