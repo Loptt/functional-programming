@@ -150,8 +150,6 @@ solve({Capacity, Instance}, Trials) ->
 % and Weight and Profit indicate the total weight and profit packed within the
 % knapsack, respectively.
 % ============================================
-solveConcurrentAux(Instance, Trials) -> receiverid ! solve(Instance, Trials).
-
 receiver(ParentID, 0, {BestSolution, BestWeight, BestProfit})-> ParentID ! {BestSolution, BestWeight, BestProfit};
 receiver(ParentID, N, {BestSolution, BestWeight, BestProfit})->
 	receive
@@ -163,15 +161,17 @@ receiver(ParentID, N, {BestSolution, BestWeight, BestProfit})->
 
 solveConcurrentSpawn(_,_,0)-> ok;
 solveConcurrentSpawn(N,Instance,Processes)->
-	spawn(exam,solveConcurrentAux,[N,Instance]),
+	spawn(exam,solveConcurrentAux,[Instance,N]),
 	solveConcurrentSpawn(N,Instance,Processes-1).
 
 solveConcurrent(Instance, Trials, Processes) ->
 	register(receiverid,spawn(exam, receiver,[self(),Processes,{[],0,0}])),
-	solveConcurrentSpawn(Trials div Processes,Instance, Processes),
+	solveConcurrentSpawn(floor(Trials/Processes),Instance, Processes),
 	receive
 		N -> N
 	end.
+
+solveConcurrentAux(Instance, Trials) -> receiverid ! solve(Instance, Trials).
 
 
 %exam:solveConcurrent(exam:getInstance(ks45),100,4).
