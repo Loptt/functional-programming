@@ -1,5 +1,7 @@
 :- use_module(library(clpfd)).
 
+/*Carlos Estrada A01039919 */
+
 solveCryptarithmetic(T, W, O, F, U, R) :-
     L = [0,1,2,3,4,5,6,7,8,9],
     member(T, L),
@@ -29,4 +31,25 @@ oldest(Julio, Gloria, Pablo, Miguel, Silvia) :-
     Silvia > Miguel,
     Pablo > Miguel,
     Miguel > Gloria,
-    Silvia > Julio,
+    Silvia > Julio.
+
+farthest(Mova, Taci, Dape, Liru) :-
+    L = [0,1,2,3],
+    /*between(0, 3, L),*/
+    member(Mova, L),
+    member(Taci, L),
+    member(Dape, L),
+    member(Liru, L),
+    Mova > Taci,
+    Dape < Liru,
+    Liru < Taci.
+
+flowerContest(Solution) :-
+    length(Solution, 3),
+    member([brooke, _], Solution),
+    member([virginia, vanity], Solution),
+    member([tricia, goldblush], Solution),
+    Solution = [_, _, [brooke, _]],
+    Solution = [_, _, [_, quietness]],
+    Solution = [_, [tricia, _], _].
+    
